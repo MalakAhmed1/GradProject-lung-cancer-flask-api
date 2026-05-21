@@ -4,14 +4,25 @@ from tensorflow.keras.utils import load_img, img_to_array
 from tensorflow.keras.applications.efficientnet import preprocess_input
 import numpy as np
 import os
+import requests
 
 app = Flask(__name__)
 
-MODEL_PATH = "efficientnet_b1.keras"
-class_names = ["normal", "lung_adenocarcinoma", "lscc"]
+MODEL_URL = "https://drive.google.com/uc?export=download&id=1IZdXlZrfrVH2z4PYfHt8RsbgWs_5dvO7"
+MODEL_PATH = "model.weights.keras"
+
+if not os.path.exists(MODEL_PATH):
+    response = requests.get(MODEL_URL)
+    with open(MODEL_PATH, "wb") as f:
+        f.write(response.content)
 
 model = load_model(MODEL_PATH, compile=False)
-print("✅ EfficientNet-B1 model loaded")
+
+class_names = [
+    "normal",
+    "lung_adenocarcinoma",
+    "lscc"
+]
 
 @app.route("/", methods=["GET"])
 def home():
@@ -46,8 +57,7 @@ def predict():
 
     return jsonify({
         "predicted_class": predicted_class,
-        "confidence": round(confidence, 4),
-        "model": "EfficientNet-B1"
+        "confidence": round(confidence, 4)
     })
 
 if __name__ == "__main__":
