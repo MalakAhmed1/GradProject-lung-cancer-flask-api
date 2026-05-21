@@ -3,4 +3,3 @@ tensorflow
 pillow
 numpy
 gunicorn
-requests
